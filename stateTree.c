@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stateTree.h"
+#include "xmlParse.h"
 // #include <linux/string.h>
 #include <string.h>
 
@@ -162,31 +163,37 @@ Node *returnAndStep(StateTree *tree)
 
     return retr;
 }
-
-int freetree(StateTree *tree)
+void freeiter(Node *iter, Node* endinel)
 {
-    Node *iter = tree->root;
-    while (iter != tree->end)
-    {
-        Node *todel = iter;
+    int iterct = 0;
+    if(iter == endinel){
+        return;
+    }else{
+        iterct++;
         if (iter->uniontype == 0)
         {
-            iter = iter->node.fac.next;
-            free(todel);
+            freeiter( iter->node.fac.next, endinel);
+            free(iter);
         }
         else if (iter->uniontype == 2)
         {
-
-            iter = iter->node.sent.next;
-            free(todel);
+            freeiter( iter->node.sent.next, endinel);
+            free(iter);
         }
         else
         {
+            freeiter(iter->node.cond.trueChild, endinel);
+            freeiter(iter->node.cond.falseChild, endinel);
 
-            return 0;
+            free(iter);
         }
     }
-    free(iter);
+}
+
+int freetree(StateTree *tree)
+{
+    freeiter(tree->root, tree->end);
+    free(tree->end);
     free(tree);
     return 1;
 }
