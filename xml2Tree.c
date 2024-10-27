@@ -25,16 +25,16 @@ void printExt(Ext *ext)
     }
 }
 
-int parseNodeHead(XMLLine *xline, Node *nod)
+int parseNodeHead(XMLLine *xline, Node *nod) // eat a node head xline. 
 {
     printf("parsing as node head\n");
     printXline(xline);
     int reval = -1;
     for (int i = 0; i < xline->argsCount; i++)
     {
-        if (strncmp(xline->argAr[i]->name, "type", 4) == 0)
+        if (strncmp(xline->argAr[i]->name, "type", 4) == 0) //  Check for type arg
         {
-            if (strncmp(xline->argAr[i]->val, "RWACD", 5) == 0)
+            if (strncmp(xline->argAr[i]->val, "RWACD", 5) == 0) //  ensure is RWACD
             {
                 printf("RWACD OK\n");
                 nod->uniontype = 0;
@@ -45,10 +45,10 @@ int parseNodeHead(XMLLine *xline, Node *nod)
                 printf("bad call\n");
             }
         }
-        else if (strncmp(xline->argAr[i]->name, "num", 3) == 0)
+        else if (strncmp(xline->argAr[i]->name, "num", 3) == 0) //  check for number
         {
             printf("NUM OK\n");
-            nod->currind = strtol(xline->argAr[i]->val, NULL, 10);
+            nod->currind = strtol(xline->argAr[i]->val, NULL, 10); // store the current index
         }
         else
         {
@@ -59,13 +59,12 @@ int parseNodeHead(XMLLine *xline, Node *nod)
     return reval;
 }
 
-int parseCondHead(XMLLine *xline, Node *nod)
+int parseCondHead(XMLLine *xline, Node *nod)// parse a conditional head xline
 {
-    printXline(xline);
     int reval = -1;
     for (int i = 0; i < xline->argsCount; i++)
     {
-        if (strncmp(xline->argAr[i]->name, "num", 3) == 0)
+        if (strncmp(xline->argAr[i]->name, "num", 3) == 0) // get number arg no others
         {
             printf("NUM OK\n");
             nod->currind = strtol(xline->argAr[i]->val, NULL, 10);
@@ -80,7 +79,7 @@ int parseCondHead(XMLLine *xline, Node *nod)
     return reval;
 }
 
-int parseArgsNum(XMLLine *xline)
+int parseArgsNum(XMLLine *xline) // pars an ListArgs for the number of arguments
 {
 
     if (!strncmp(xline->name, "ListArgs", 4) == 0)
@@ -89,7 +88,7 @@ int parseArgsNum(XMLLine *xline)
     }
     for (int i = 0; i < xline->argsCount; i++)
     {
-        if (strncmp(xline->argAr[i]->name, "count", 5) == 0)
+        if (strncmp(xline->argAr[i]->name, "count", 5) == 0) // count is the only arg
         {
             int reval = strtol(xline->argAr[i]->val, NULL, 10);
             return reval;
@@ -102,7 +101,7 @@ int parseArgsNum(XMLLine *xline)
     }
     return -1;
 }
-Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
+Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth) // parse a full node
 {
     Ext *retext = (Ext *)calloc(1, sizeof(Ext));
     retext->blk_nod = 0;
@@ -113,12 +112,12 @@ Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
     retext->next_ind_R = -1;
 
     Node *nod = &(retext->item.node);
-    int sycalltype = parseNodeHead(xlines[*cntr], nod);
+    int sycalltype = parseNodeHead(xlines[*cntr], nod); // eat the head
     printf("incr counter for head %d\n", *cntr);
     *(cntr) += 1;
-    int argsnum = parseArgsNum(xlines[*cntr]);
+    int argsnum = parseArgsNum(xlines[*cntr]); // eat the argument count
 
-    printf("incr counter for argsnum %d\n", *cntr);
+    printf("incr counter for argsnum %d\n", *cntr); 
     *(cntr) += 1;
     switch (sycalltype)
     {
@@ -144,11 +143,11 @@ Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
                 }
                 else
                 {
-                    if (strncmp(xlines[*cntr]->argAr[0]->name, "filename", 8) == 0)
+                    if (strncmp(xlines[*cntr]->argAr[0]->name, "filename", 8) == 0) // eat filename
                     {
                         strncpy(nod->node.fac.filename, xlines[*cntr]->argAr[0]->val, 4096);
                     }
-                    else if (strncmp(xlines[*cntr]->argAr[0]->name, "access", 6) == 0)
+                    else if (strncmp(xlines[*cntr]->argAr[0]->name, "access", 6) == 0) //  process access
                     {
                         nod->node.fac.accessType = xlines[*cntr]->argAr[0]->val[0];
                     }
@@ -185,7 +184,7 @@ Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
     return retext;
 }
 
-Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
+Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth) // Parse a conditonal
 {
     Ext *retext = (Ext *)calloc(1, sizeof(Ext));
     retext->blk_nod = 0;
@@ -203,7 +202,7 @@ Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
         nod->uniontype = 1;
         int linkctr = 0;
         printXline(xlines[*cntr]);
-        while (strncmp(xlines[*cntr]->name, "Link", 4) == 0)
+        while (strncmp(xlines[*cntr]->name, "Link", 4) == 0) // check for link
         {
 
             if (!(xlines[*cntr]->ending == 1))
@@ -218,7 +217,7 @@ Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
                 }
                 else
                 {
-                    if (strncmp(xlines[*cntr]->argAr[0]->name, "to", 2) == 0)
+                    if (strncmp(xlines[*cntr]->argAr[0]->name, "to", 2) == 0) // parse first link
                     {
                         if (linkctr == 0)
                         {
@@ -227,7 +226,7 @@ Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
                             retext->next_ind_L = strtol(xlines[*cntr]->argAr[0]->val, NULL, 10);
                         }
                         else
-                        {
+                        { // parse second link
                             printf(" jto2 %s\n", xlines[*cntr]->argAr[0]->val);
                             retext->next_ind_R = strtol(xlines[*cntr]->argAr[0]->val, NULL, 10);
                         }
@@ -259,15 +258,12 @@ Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
     return retext;
 }
 
-int extListFromXML(XMLLine **xlines, int numlines, Ext **extl)
+int extListFromXML(XMLLine **xlines, int numlines, Ext **extl) // turn xml into ext list
 {
     int topassr = numlines;
     int cntr = 0;
     int nestrdepth = 0;
 
-    // Cases: name block, pop in a level, wait until we can pop out, flag the previous element if we find a closing block tag.
-    // name node: pop in and parse lines until EON, parse argskis
-    // name cond: not fully impl in state tree yet? double check this later, but tldr is when cond re-block into depht and pop out of depth to cond block correctly sepr from nodes
     XMLLine *xline;
     int nodectr = 0;
     while (cntr < topassr)
@@ -278,10 +274,10 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **extl)
         printXline(xline);
         if (strncmp(xline->name, "Block", 5) == 0)
         {
-            printf("parsing a block\n");
+            printf("parsing a block\n"); // if block
             if (xline->ending == 0)
             {
-                nestrdepth++;
+                nestrdepth++; // if opening nest one
                 Ext *extr = (Ext *)calloc(1, sizeof(Ext));
                 extr->blk_nod = 1;
                 extr->is_cond = 0;
@@ -294,21 +290,21 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **extl)
                 nodectr++;
                 cntr += 1;
             }
-            else
+            else // if closing previous is block ender
             {
                 extl[nodectr - 1]->blockEnd = 1;
                 nestrdepth--;
                 cntr += 1;
             }
         }
-        else if (strncmp(xline->name, "Node", 4) == 0)
+        else if (strncmp(xline->name, "Node", 4) == 0) // parse a node, call the func
         {
             printf("parsing nodeskis\n");
             Ext *extr = parseNode(xlines, numlines, &cntr, nestrdepth);
             extl[nodectr] = extr;
             nodectr++;
         }
-        else if (strncmp(xline->name, "Cond", 4) == 0)
+        else if (strncmp(xline->name, "Cond", 4) == 0) // parse a cond call the func
         {
             printf("unsup conds for now\n");
             Ext *extr = parseCond(xlines, numlines, &cntr, nestrdepth);
@@ -323,18 +319,20 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **extl)
     }
     return nodectr;
 }
-Node *condSeek(Ext **extl, int numlines, int start, Node* endtinel){
+Node *condSeek(Ext **extl, int numlines, int start, Node *endtinel) // look for the next block of our level node as a conditional t o the next condition
+{
     int deplevel = extl[start]->nest_dep;
-    Ext* seekr = endtinel;
-    for(int i = start+1; i < numlines; i++){
-        if(extl[i]->nest_dep == deplevel){
+    Ext *seekr = endtinel;
+    for (int i = start + 1; i < numlines; i++)
+    {
+        if (extl[i]->nest_dep == deplevel)
+        {
             seekr = extl[i];
         }
     }
     return seekr;
-    
 }
-Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
+Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel) // recursively make tree
 {
     if (cntr >= madexts)
     {
@@ -342,7 +340,7 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
     }
     Ext *on = extl[cntr];
     if (on->blk_nod == 1)
-    {
+    { // block are not "real", close the block
         printf("linking on a block\n");
         Node *returnge = rcrMak(extl, madexts, cntr + 1, endtinel);
         pretty_print_node(returnge);
@@ -351,15 +349,12 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
     }
     else if (on->is_cond == 1)
     {
-        printf("linking on a cond\n");
+        printf("linking on a cond\n"); // if we have conditinoal
         Node *returnge = &(extl[cntr]->item.node);
-        returnge->node.fac.next = condSeek(extl, madexts, cntr, endtinel);
+        returnge->node.fac.next = condSeek(extl, madexts, cntr, endtinel); // find the next node at our layer, if none it's the previous endtinel
         pretty_print_node(returnge->node.fac.next);
-        returnge->node.cond.trueChild = rcrMak(extl, madexts, extl[cntr]->next_ind_L, returnge->node.fac.next );
-        returnge->node.cond.falseChild = rcrMak(extl, madexts, extl[cntr]->next_ind_R, returnge->node.fac.next );
-
-        pretty_print_node(returnge);
-        printf("  I am: %p\n", (void *)returnge);
+        returnge->node.cond.trueChild = rcrMak(extl, madexts, extl[cntr]->next_ind_L, returnge->node.fac.next); // call left chilid 
+        returnge->node.cond.falseChild = rcrMak(extl, madexts, extl[cntr]->next_ind_R, returnge->node.fac.next); // call right child
         return returnge;
     }
     else
@@ -367,7 +362,7 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
         if (on->blockEnd == 1)
         {
             printf("linking on a blocknder cond\n");
-            Node *returnge = &(extl[cntr]->item.node);
+            Node *returnge = &(extl[cntr]->item.node); // if we have a block end, link to the local end
             returnge->node.fac.next = endtinel;
             pretty_print_node(returnge);
             printf("  I am: %p\n", (void *)returnge);
@@ -376,7 +371,7 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
         else
         {
             printf("linking on a normal cond\n");
-            Node *returnge = &(extl[cntr]->item.node);
+            Node *returnge = &(extl[cntr]->item.node); // else just link to our next
             returnge->node.fac.next = rcrMak(extl, madexts, cntr + 1, endtinel);
             pretty_print_node(returnge);
             printf("  I am: %p\n", (void *)returnge);
@@ -385,14 +380,15 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
     }
 }
 
-StateTree *makeTreefromXML(XMLLine **xlines, int numlines)
+StateTree *makeTreefromXML(XMLLine **xlines, int numlines) // make a state free from xml
 {
-    Ext **extl = (Ext **)calloc(100, sizeof(Ext *));
+    Ext **extl = (Ext **)calloc(100, sizeof(Ext *)); // list for exts, maybe smarten
     int madeexts = extListFromXML(xlines, numlines, extl);
-    StateTree *stree = init_state_tree();
+    StateTree *stree = init_state_tree(); // init the tree
 
     Node *start = rcrMak(extl, madeexts, 0, stree->end);
     stree->root->node.sent.next = start;
+    free(extl); // free the ext list
     return stree;
 }
 
