@@ -1,6 +1,8 @@
 
 #include "xml2Tree.h"
 
+Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel);
+
 void pretty_print_block(const Block *block)
 {
     printf("Block Struct:\n");
@@ -17,11 +19,11 @@ void printExt(Ext *ext)
     printf("  blockEnd   : %d\n", ext->blockEnd);
     if (ext->blk_nod == 1)
     {
-        pretty_print_block(&(ext->item.blk));
+        pretty_print_block(ext->item.blk);
     }
     else
     {
-        pretty_print_node(&(ext->item.node));
+        pretty_print_node(ext->item.node);
     }
 }
 
@@ -104,6 +106,8 @@ int parseArgsNum(XMLLine *xline) // pars an ListArgs for the number of arguments
 Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth) // parse a full node
 {
     Ext *retext = (Ext *)calloc(1, sizeof(Ext));
+    Node *ode = (Node *)calloc(1, sizeof(Node));
+    retext->item.node = ode;
     retext->blk_nod = 0;
     retext->is_cond = 0;
     retext->blockEnd = 0;
@@ -111,8 +115,8 @@ Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth) // par
     retext->next_ind_L = -1;
     retext->next_ind_R = -1;
 
-    Node *nod = &(retext->item.node);
-    int sycalltype = parseNodeHead(xlines[*cntr], nod); // eat the head
+    Node *nod = ode;
+    int sycalltype = parseNodeHead(xlines[*cntr], nod);
     printf("incr counter for head %d\n", *cntr);
     *(cntr) += 1;
     int argsnum = parseArgsNum(xlines[*cntr]); // eat the argument count
@@ -187,12 +191,14 @@ Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth) // par
 Ext *parseCond(XMLLine **xlines, int numlines, int *cntr, int nestrdepth) // Parse a conditonal
 {
     Ext *retext = (Ext *)calloc(1, sizeof(Ext));
+    Node *rlnode = (Node *)calloc(1, sizeof(Node));
+    retext->item.node = rlnode;
     retext->blk_nod = 0;
     retext->is_cond = 1;
     retext->blockEnd = 0;
     retext->nest_dep = nestrdepth;
 
-    Node *nod = &(retext->item.node);
+    Node *nod = rlnode;
     int sycalltype = parseCondHead(xlines[*cntr], nod);
     printf("incr counter for head %d\n", *cntr);
     *(cntr) += 1;
@@ -279,6 +285,8 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **extl) // turn xml into 
             {
                 nestrdepth++; // if opening nest one
                 Ext *extr = (Ext *)calloc(1, sizeof(Ext));
+                Block *blk = (Block *)calloc(1, sizeof(Block));
+                extr->item.blk = blk;
                 extr->blk_nod = 1;
                 extr->is_cond = 0;
                 extr->blockEnd = 0;
@@ -286,7 +294,7 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **extl) // turn xml into 
                 extr->next_ind_L = -1;
                 extr->next_ind_R = -1;
                 extl[nodectr] = extr;
-                extr->item.blk.currind = strtol(xline->argAr[0]->val, NULL, 10);
+                extr->item.blk->currind = strtol(xline->argAr[0]->val, NULL, 10);
                 nodectr++;
                 cntr += 1;
             }
@@ -319,21 +327,24 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **extl) // turn xml into 
     }
     return nodectr;
 }
-Node *condSeek(Ext **extl, int numlines, int start, Node *endtinel) // look for the next block of our level node as a conditional t o the next condition
+Node *condSeek(Ext **extl, int numlines, int start, Node *endtinel) // seek the next child from a condition of the same level
 {
     int deplevel = extl[start]->nest_dep;
-    Ext *seekr = endtinel;
+    Node *seekr = endtinel;
     for (int i = start + 1; i < numlines; i++)
     {
+        printf("entering from condmake on index %d\n", i);
         if (extl[i]->nest_dep == deplevel)
         {
-            seekr = extl[i];
+
+            seekr = rcrMak(extl, numlines, i, endtinel);
         }
     }
     return seekr;
 }
 Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel) // recursively make tree
 {
+
     if (cntr >= madexts)
     {
         return endtinel;
@@ -349,12 +360,16 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel) // recursively m
     }
     else if (on->is_cond == 1)
     {
-        printf("linking on a cond\n"); // if we have conditinoal
-        Node *returnge = &(extl[cntr]->item.node);
-        returnge->node.fac.next = condSeek(extl, madexts, cntr, endtinel); // find the next node at our layer, if none it's the previous endtinel
-        pretty_print_node(returnge->node.fac.next);
-        returnge->node.cond.trueChild = rcrMak(extl, madexts, extl[cntr]->next_ind_L, returnge->node.fac.next); // call left chilid 
-        returnge->node.cond.falseChild = rcrMak(extl, madexts, extl[cntr]->next_ind_R, returnge->node.fac.next); // call right child
+        printf("linking on a cond %d\n", cntr); // if a cond seek the next same level as toy index and use
+        printExt(extl[cntr]);
+        Node *returnge = extl[cntr]->item.node;
+        returnge->node.fac.next = condSeek(extl, madexts, cntr, endtinel);
+        pretty_print_node(returnge);
+        returnge->node.cond.trueChild = rcrMak(extl, madexts, extl[cntr]->next_ind_L, endtinel);
+        returnge->node.cond.falseChild = rcrMak(extl, madexts, extl[cntr]->next_ind_R, endtinel);
+
+        pretty_print_node(returnge);
+        printf("  I am: %p\n", (void *)returnge);
         return returnge;
     }
     else
@@ -362,7 +377,7 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel) // recursively m
         if (on->blockEnd == 1)
         {
             printf("linking on a blocknder cond\n");
-            Node *returnge = &(extl[cntr]->item.node); // if we have a block end, link to the local end
+            Node *returnge = extl[cntr]->item.node;
             returnge->node.fac.next = endtinel;
             pretty_print_node(returnge);
             printf("  I am: %p\n", (void *)returnge);
@@ -371,7 +386,7 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel) // recursively m
         else
         {
             printf("linking on a normal cond\n");
-            Node *returnge = &(extl[cntr]->item.node); // else just link to our next
+            Node *returnge = extl[cntr]->item.node;
             returnge->node.fac.next = rcrMak(extl, madexts, cntr + 1, endtinel);
             pretty_print_node(returnge);
             printf("  I am: %p\n", (void *)returnge);
@@ -380,13 +395,26 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel) // recursively m
     }
 }
 
-StateTree *makeTreefromXML(XMLLine **xlines, int numlines) // make a state free from xml
+void freeXT(Ext *ext) // free the ext
 {
-    Ext **extl = (Ext **)calloc(100, sizeof(Ext *)); // list for exts, maybe smarten
+    if (ext->blk_nod == 1)
+    {
+        free(ext->item.blk);
+    }
+    free(ext);
+}
+StateTree *makeTreefromXML(XMLLine **xlines, int numlines) // full xml list to treee
+{
+    Ext **extl = (Ext **)calloc(100, sizeof(Ext *));
+
     int madeexts = extListFromXML(xlines, numlines, extl);
     StateTree *stree = init_state_tree(); // init the tree
 
     Node *start = rcrMak(extl, madeexts, 0, stree->end);
+    for (int i = 0; i < madeexts; i++) // can free because underlying nodes do not rely on exts
+    {
+        freeXT(extl[i]);
+    }
     stree->root->node.sent.next = start;
     free(extl); // free the ext list
     return stree;
@@ -409,6 +437,9 @@ int main()
     StateTree *teed = makeTreefromXML(xlines, readlines);
     printf("\n\n\nbigreadtest\n\n\n\n\n\n");
     fulliter(teed);
+
+    fflush(stdout);
+    freetree(teed);
     fclose(testf);
 
     for (int i = 0; i < readlines; i++)

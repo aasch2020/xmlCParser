@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stateTree.h"
+#include "xmlParse.h"
 // #include <linux/string.h>
 #include <string.h>
 
@@ -96,18 +97,20 @@ int insertAfterCurrent(StateTree *tree, Node *insert)
     return 0;
 }
 
-
-void rcriter(Node *iter )
+void rcriter(Node *iter) // recursive iterator for print
 {
     int iterct = 0;
-    if(iter == NULL){
+    if (iter == NULL)
+    {
         return;
-    }else{
+    }
+    else
+    {
         iterct++;
         if (iter->uniontype == 0)
         {
             printf("node index %d, type fileAccess, Access level %c, filename: %s, next is %p\n", iter->currind, iter->node.fac.accessType, iter->node.fac.filename, iter->node.fac.next);
-            rcriter( iter->node.fac.next);
+            rcriter(iter->node.fac.next);
         }
         else if (iter->uniontype == 2)
         {
@@ -120,11 +123,11 @@ void rcriter(Node *iter )
             {
                 printf("head found\n");
             }
-            rcriter( iter->node.sent.next);
+            rcriter(iter->node.sent.next);
         }
         else
         {
-            printf("hit a conditional at index %d children are %p, %p\n\n\n", iter->currind, (void*)iter->node.cond.trueChild, (void *)iter->node.cond.trueChild );
+            printf("hit a conditional at index %d children are %p, %p\n\n\n", iter->currind, (void *)iter->node.cond.trueChild, (void *)iter->node.cond.trueChild);
             rcriter(iter->node.cond.trueChild);
             rcriter(iter->node.cond.falseChild);
 
@@ -163,31 +166,40 @@ Node *returnAndStep(StateTree *tree)
 
     return retr;
 }
-
-int freetree(StateTree *tree)
+void freeiter(Node *iter, Node *endinel)
 {
-    Node *iter = tree->root;
-    while (iter != tree->end)
+    int iterct = 0;
+    if (iter == endinel)
     {
-        Node *todel = iter;
+        return;
+    }
+    else
+    {
+        iterct++;
         if (iter->uniontype == 0)
         {
-            iter = iter->node.fac.next;
-            free(todel);
+            freeiter(iter->node.fac.next, endinel);
+            free(iter);
         }
         else if (iter->uniontype == 2)
         {
-
-            iter = iter->node.sent.next;
-            free(todel);
+            freeiter(iter->node.sent.next, endinel);
+            free(iter);
         }
         else
         {
+            freeiter(iter->node.cond.trueChild, endinel);
+            freeiter(iter->node.cond.falseChild, endinel);
 
-            return 0;
+            free(iter);
         }
     }
-    free(iter);
+}
+
+int freetree(StateTree *tree)
+{
+    freeiter(tree->root, tree->end);
+    free(tree->end);
     free(tree);
     return 1;
 }
