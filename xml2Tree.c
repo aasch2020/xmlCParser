@@ -399,8 +399,10 @@ Node *rcrMak(Ext **extl, int madexts, int cntr, Node *endtinel)
     }
 }
 
-void freeXT(Ext* ext){
-    if(ext->blk_nod == 1){
+void freeXT(Ext *ext)
+{
+    if (ext->blk_nod == 1)
+    {
         free(ext->item.blk);
     }
     free(ext);
@@ -409,12 +411,12 @@ StateTree *makeTreefromXML(XMLLine **xlines, int numlines)
 {
     Ext **extl = (Ext **)calloc(100, sizeof(Ext *));
 
-
     int madeexts = extListFromXML(xlines, numlines, extl);
     StateTree *stree = init_state_tree();
 
     Node *start = rcrMak(extl, madeexts, 0, stree->end);
-    for(int i; i< madeexts; i++){
+    for (int i; i < madeexts; i++)
+    {
         freeXT(extl[i]);
     }
     free(extl);

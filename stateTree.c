@@ -96,18 +96,20 @@ int insertAfterCurrent(StateTree *tree, Node *insert)
     return 0;
 }
 
-
-void rcriter(Node *iter )
+void rcriter(Node *iter)
 {
     int iterct = 0;
-    if(iter == NULL){
+    if (iter == NULL)
+    {
         return;
-    }else{
+    }
+    else
+    {
         iterct++;
         if (iter->uniontype == 0)
         {
             printf("node index %d, type fileAccess, Access level %c, filename: %s, next is %p\n", iter->currind, iter->node.fac.accessType, iter->node.fac.filename, iter->node.fac.next);
-            rcriter( iter->node.fac.next);
+            rcriter(iter->node.fac.next);
         }
         else if (iter->uniontype == 2)
         {
@@ -120,11 +122,11 @@ void rcriter(Node *iter )
             {
                 printf("head found\n");
             }
-            rcriter( iter->node.sent.next);
+            rcriter(iter->node.sent.next);
         }
         else
         {
-            printf("hit a conditional at index %d children are %p, %p\n\n\n", iter->currind, (void*)iter->node.cond.trueChild, (void *)iter->node.cond.trueChild );
+            printf("hit a conditional at index %d children are %p, %p\n\n\n", iter->currind, (void *)iter->node.cond.trueChild, (void *)iter->node.cond.trueChild);
             rcriter(iter->node.cond.trueChild);
             rcriter(iter->node.cond.falseChild);
 
@@ -163,21 +165,24 @@ Node *returnAndStep(StateTree *tree)
 
     return retr;
 }
-void freeiter(Node *iter, Node* endinel)
+void freeiter(Node *iter, Node *endinel)
 {
     int iterct = 0;
-    if(iter == endinel){
+    if (iter == endinel)
+    {
         return;
-    }else{
+    }
+    else
+    {
         iterct++;
         if (iter->uniontype == 0)
         {
-            freeiter( iter->node.fac.next, endinel);
+            freeiter(iter->node.fac.next, endinel);
             free(iter);
         }
         else if (iter->uniontype == 2)
         {
-            freeiter( iter->node.sent.next, endinel);
+            freeiter(iter->node.sent.next, endinel);
             free(iter);
         }
         else

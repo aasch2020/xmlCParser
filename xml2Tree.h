@@ -6,8 +6,8 @@
 #include <string.h>
 typedef union Extstr
 {
-    struct Node* node;
-    struct Block* blk;
+    struct Node *node;
+    struct Block *blk;
 } Extstr;
 typedef struct Ext
 {
