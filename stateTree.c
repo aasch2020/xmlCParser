@@ -80,7 +80,6 @@ int insertAfter(Node *base, Node *child)
 
 int insertAfterCurrent(StateTree *tree, Node *insert)
 {
-    Node *base = tree->current;
     if (tree->current == NULL)
     {
         // default to insert after head
@@ -96,18 +95,18 @@ int insertAfterCurrent(StateTree *tree, Node *insert)
     return 0;
 }
 
-void fulliter(StateTree *tree)
+
+void rcriter(Node *iter )
 {
-    Node *iter = tree->root;
     int iterct = 0;
-    while (iter != NULL)
-    {
-        printf("iter->uniontype is %d, num in  = %d\n", iter->uniontype, iterct);
+    if(iter == NULL){
+        return;
+    }else{
         iterct++;
         if (iter->uniontype == 0)
         {
-            printf("node index %d, type fileAccess, Access level %c, filename: %s\n", iter->currind, iter->node.fac.accessType, iter->node.fac.filename);
-            iter = iter->node.fac.next;
+            printf("node index %d, type fileAccess, Access level %c, filename: %s, next is %p\n", iter->currind, iter->node.fac.accessType, iter->node.fac.filename, iter->node.fac.next);
+            rcriter( iter->node.fac.next);
         }
         else if (iter->uniontype == 2)
         {
@@ -120,16 +119,23 @@ void fulliter(StateTree *tree)
             {
                 printf("head found\n");
             }
-            iter = iter->node.sent.next;
+            rcriter( iter->node.sent.next);
         }
         else
         {
-            printf("this is a conditional, we should never get here\n");
-            break;
+            printf("hit a conditional at index %d children are %p, %p\n\n\n", iter->currind, (void*)iter->node.cond.trueChild, (void *)iter->node.cond.trueChild );
+            rcriter(iter->node.cond.trueChild);
+            rcriter(iter->node.cond.falseChild);
+
+            printf("exiting the conditoin\n\n\n");
         }
     }
 }
-
+void fulliter(StateTree *tree)
+{
+    printf("tail next is (this is bad!!) %p\n", tree->end->node.sent.next);
+    rcriter(tree->root);
+}
 Node *returnAndStep(StateTree *tree)
 {
     Node *retr = tree->current;
