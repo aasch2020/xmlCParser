@@ -1,8 +1,9 @@
 #define MAX_NEST = 6
 
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
-typedef struct Block{
+typedef struct Block
+{
     int currind;
 } Block;
 

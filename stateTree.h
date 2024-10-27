@@ -36,7 +36,7 @@ typedef union NodeUnion
 } NodeUnion;
 typedef struct Node
 {
-    int uniontype; //0=fac, 2=sent, 1= cond
+    int uniontype; // 0=fac, 2=sent, 1= cond
     int currind;
     union NodeUnion node;
 } Node;

@@ -18,7 +18,9 @@ void printExt(Ext *ext)
     if (ext->blk_nod == 1)
     {
         pretty_print_block(&(ext->item.blk));
-    } else {
+    }
+    else
+    {
         pretty_print_node(&(ext->item.node));
     }
 }
@@ -45,7 +47,7 @@ int parseNodeHead(XMLLine *xline, Node *nod)
         }
         else if (strncmp(xline->argAr[i]->name, "num", 3) == 0)
         {
-                            printf("NUM OK\n");
+            printf("NUM OK\n");
             nod->currind = strtol(xline->argAr[i]->val, NULL, 10);
         }
         else
@@ -56,7 +58,6 @@ int parseNodeHead(XMLLine *xline, Node *nod)
     }
     return reval;
 }
-
 
 int parseArgsNum(XMLLine *xline)
 {
@@ -83,7 +84,7 @@ int parseArgsNum(XMLLine *xline)
 
 Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
 {
-    Ext *retext = (Ext *)calloc(1,sizeof(Ext));
+    Ext *retext = (Ext *)calloc(1, sizeof(Ext));
     retext->blk_nod = 0;
     retext->is_cond = 0;
     retext->blockEnd = 0;
@@ -91,7 +92,7 @@ Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
     retext->next_ind_L = -1;
     retext->next_ind_R = -1;
 
-    Node* nod = &(retext->item.node);
+    Node *nod = &(retext->item.node);
     int sycalltype = parseNodeHead(xlines[*cntr], nod);
     printf("incr counter for head %d\n", *cntr);
     *(cntr) += 1;
@@ -177,7 +178,7 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **nodel)
     int nodectr = 0;
     while (cntr < topassr)
     {
-        
+
         xline = xlines[cntr];
         printf("parsing line at %d\n", cntr);
         printXline(xline);
@@ -188,7 +189,7 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **nodel)
             if (xline->ending == 0)
             {
                 nestrdepth++;
-                Ext *extr = (Ext *)calloc(1,sizeof(Ext));
+                Ext *extr = (Ext *)calloc(1, sizeof(Ext));
                 extr->blk_nod = 1;
                 extr->is_cond = 0;
                 extr->blockEnd = 0;
@@ -197,13 +198,13 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **nodel)
                 extr->next_ind_R = -1;
                 nodel[nodectr] = extr;
                 nodectr++;
-                cntr+=1;
+                cntr += 1;
             }
             else
             {
                 nodel[nodectr - 1]->blockEnd = 1;
                 nestrdepth--;
-                cntr+=1;
+                cntr += 1;
             }
         }
         else if (strncmp(xline->name, "Node", 4) == 0)
@@ -226,7 +227,8 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **nodel)
     return nodectr;
 }
 
-StateTree* makeTreefromXML(XMLLine **xlines, int numlines){
+StateTree *makeTreefromXML(XMLLine **xlines, int numlines)
+{
     return NULL;
 }
 
@@ -249,11 +251,11 @@ int main()
     XMLLine *xline = processXMLLine("<Name />", 8);
     char *swag = "<someother swag=\"asdf\" arg2=\"money\" />";
     XMLLine *x1line = processXMLLine(swag, strlen(swag));
-freeXMLLine(xline);
-freeXMLLine(x1line);
+    freeXMLLine(xline);
+    freeXMLLine(x1line);
     XMLLine *x2line = processXMLLine("</endingtag>", 8);
 
-freeXMLLine(x2line);
+    freeXMLLine(x2line);
     printXline(xline);
     printf("test Xline\n\n\n\n\n");
     printXline(x1line);
@@ -262,7 +264,7 @@ freeXMLLine(x2line);
 
     printf("test files\n\n\n\n\n\n");
     FILE *testf = fopen("testf.xml", "r");
-    XMLLine **xlines = (XMLLine **)calloc(100 ,sizeof(XMLLine *));
+    XMLLine **xlines = (XMLLine **)calloc(100, sizeof(XMLLine *));
     int readlines = readintoXMLstruct(testf, xlines);
 
     printf("test results\n\n\n\n\n\n");
@@ -273,10 +275,8 @@ freeXMLLine(x2line);
         printXline(xlines[i]);
     }
 
-
-
     printf("\n\n\nbigreadtest\n\n\n\n\n\n");
-    Ext **nodel = (Ext **)calloc(100,sizeof(Ext *));
+    Ext **nodel = (Ext **)calloc(100, sizeof(Ext *));
     int madeexts = extListFromXML(xlines, readlines, nodel);
     for (int i = 0; i < madeexts; i++)
     {
@@ -287,13 +287,13 @@ freeXMLLine(x2line);
 
     for (int i = 0; i < readlines; i++)
     {
-       freeXMLLine(xlines[i]);
+        freeXMLLine(xlines[i]);
     }
     free(xlines);
 
     for (int i = 0; i < madeexts; i++)
     {
         free(nodel[i]);
-    } 
+    }
     free(nodel);
-} 
+}
