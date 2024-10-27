@@ -249,9 +249,11 @@ int main()
     XMLLine *xline = processXMLLine("<Name />", 8);
     char *swag = "<someother swag=\"asdf\" arg2=\"money\" />";
     XMLLine *x1line = processXMLLine(swag, strlen(swag));
-
+freeXMLLine(xline);
+freeXMLLine(x1line);
     XMLLine *x2line = processXMLLine("</endingtag>", 8);
 
+freeXMLLine(x2line);
     printXline(xline);
     printf("test Xline\n\n\n\n\n");
     printXline(x1line);
@@ -260,7 +262,7 @@ int main()
 
     printf("test files\n\n\n\n\n\n");
     FILE *testf = fopen("testf.xml", "r");
-    XMLLine **xlines = (XMLLine **)calloc(1,sizeof(XMLLine *));
+    XMLLine **xlines = (XMLLine **)calloc(100 ,sizeof(XMLLine *));
     int readlines = readintoXMLstruct(testf, xlines);
 
     printf("test results\n\n\n\n\n\n");
@@ -274,14 +276,14 @@ int main()
 
 
     printf("\n\n\nbigreadtest\n\n\n\n\n\n");
-    Ext **nodel = (Ext **)calloc(1,sizeof(Ext *));
+    Ext **nodel = (Ext **)calloc(100,sizeof(Ext *));
     int madeexts = extListFromXML(xlines, readlines, nodel);
     for (int i = 0; i < madeexts; i++)
     {
         printExt(nodel[i]);
     }
 
-    
+    fclose(testf);
 
     for (int i = 0; i < readlines; i++)
     {

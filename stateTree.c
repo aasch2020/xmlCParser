@@ -90,7 +90,11 @@ int insertAfterCurrent(StateTree *tree, Node *insert)
     else
     {
         insertAfter(tree->current, insert);
+        return 0;
     }
+
+    return 0;
+    
 }
 
 void fulliter(StateTree *tree)
@@ -178,6 +182,7 @@ int freetree(StateTree *tree)
         }
     }
     free(iter);
+    free(tree);
     return 1;
 }
 
