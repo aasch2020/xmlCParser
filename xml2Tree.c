@@ -415,7 +415,7 @@ StateTree *makeTreefromXML(XMLLine **xlines, int numlines)
     StateTree *stree = init_state_tree();
 
     Node *start = rcrMak(extl, madeexts, 0, stree->end);
-    for (int i; i < madeexts; i++)
+    for (int i = 0; i < madeexts; i++)
     {
         freeXT(extl[i]);
     }
