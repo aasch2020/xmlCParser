@@ -8,7 +8,6 @@
 // #include <linux/string.h>
 #include <string.h>
 
-
 // This is something that will be edited, as we will need a kernel read. TLDR, this is just to read the next line and increment some sort of seek counter
 int readalem(char *buf, FILE *fptr)
 {
@@ -30,9 +29,27 @@ void printXline(XMLLine *xline)
         printXArg(xline->argAr[x]);
     }
 }
+
+void freeXArg(XArg *xarg)
+{
+    free(xarg->name);
+    free(xarg->val);
+    free(xarg);
+}
+void freeXMLLine(XMLLine *xline)
+{
+    for (int x = 0; x < xline->argsCount; x++)
+    {
+        freeXArg(xline->argAr[x]);
+    }
+    free(xline->argAr);
+
+    free(xline);
+}
 XMLLine *processXMLLine(char *buf, int buflen)
 {
-    XMLLine *xline = (XMLLine *)malloc(sizeof(XMLLine));
+    XMLLine *xline = (XMLLine *)calloc(1, sizeof(XMLLine));
+
     int cleanbreak = 0;
     int intinbuf = 0;
     while (buf[intinbuf] == ' ')
@@ -42,6 +59,7 @@ XMLLine *processXMLLine(char *buf, int buflen)
     if (buf[intinbuf] != '<')
     {
         printf("exiting xline bad 1 \n");
+        freeXMLLine(xline);
         return NULL;
     }
     intinbuf++;
@@ -71,15 +89,15 @@ XMLLine *processXMLLine(char *buf, int buflen)
         printXline(xline);
         return xline;
     }
-    XArg **argArray = (XArg **)malloc(sizeof(XArg *) * 10); // Up to 10 args, smarten this later
+    XArg **argArray = (XArg **)calloc(1, sizeof(XArg *) * 10); // Up to 10 args, smarten this later
     int argct = 0;
     printf("pre attr intinbuf%d\n", intinbuf);
     while ((buf[intinbuf] != '/' && buf[intinbuf] != '>') && intinbuf + 1 < buflen)
     {
         printf("can we iter args?\n");
 
-        XArg *arg = (XArg *)malloc(sizeof(XArg));
-        char *argn = (char *)malloc(30 * sizeof(char)); // Smarten this later
+        XArg *arg = (XArg *)calloc(1, sizeof(XArg));
+        char *argn = (char *)calloc(1, 30 * sizeof(char)); // Smarten this later
         int toCtr = 0;
         while (buf[intinbuf] != '=' && intinbuf < buflen)
         {
@@ -94,11 +112,12 @@ XMLLine *processXMLLine(char *buf, int buflen)
 
         if ((buf[intinbuf] != '"'))
         {
+            freeXMLLine(xline);
             return NULL;
         }
         intinbuf++;
 
-        char *argv = (char *)malloc(30 * sizeof(char)); // Smarten this later
+        char *argv = (char *)calloc(1, 30 * sizeof(char)); // Smarten this later
         toCtr = 0;
         while ((buf[intinbuf] != '\"') && intinbuf < buflen)
         {
@@ -117,6 +136,7 @@ XMLLine *processXMLLine(char *buf, int buflen)
 
         if (buf[intinbuf] != ' ')
         {
+            freeXMLLine(xline);
             return NULL;
         }
         intinbuf++;
@@ -155,4 +175,3 @@ int readintoXMLstruct(FILE *fptr, XMLLine **xlines)
     }
     return totes;
 }
-

@@ -24,3 +24,5 @@ void printXArg(XArg *arg);
 void printXline(XMLLine *xline);
 XMLLine *processXMLLine(char *buf, int buflen);
 int readintoXMLstruct(FILE *fptr, XMLLine **xlines);
+void freeXArg(XArg *xarg);
+void freeXMLLine(XMLLine *xline);

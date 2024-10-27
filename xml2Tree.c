@@ -83,8 +83,7 @@ int parseArgsNum(XMLLine *xline)
 
 Ext *parseNode(XMLLine **xlines, int numlines, int *cntr, int nestrdepth)
 {
-    int cleanNode = 0;
-    Ext *retext = (Ext *)malloc(sizeof(Ext));
+    Ext *retext = (Ext *)calloc(1,sizeof(Ext));
     retext->blk_nod = 0;
     retext->is_cond = 0;
     retext->blockEnd = 0;
@@ -189,7 +188,7 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **nodel)
             if (xline->ending == 0)
             {
                 nestrdepth++;
-                Ext *extr = (Ext *)malloc(sizeof(Ext));
+                Ext *extr = (Ext *)calloc(1,sizeof(Ext));
                 extr->blk_nod = 1;
                 extr->is_cond = 0;
                 extr->blockEnd = 0;
@@ -228,7 +227,7 @@ int extListFromXML(XMLLine **xlines, int numlines, Ext **nodel)
 }
 
 StateTree* makeTreefromXML(XMLLine **xlines, int numlines){
-
+    return NULL;
 }
 
 int main()
@@ -259,15 +258,9 @@ int main()
     printf("test Xline\n\n\n\n\n");
     printXline(x2line);
 
-    printf("test blocks\n\n\n\n\n\n");
-
-    char *swag2 = "<Block num=\"89\" >";
-    int nedstep = 0;
-
     printf("test files\n\n\n\n\n\n");
-    Ext *newExt = (Ext *)malloc(sizeof(Ext));
     FILE *testf = fopen("testf.xml", "r");
-    XMLLine **xlines = (XMLLine **)malloc(sizeof(XMLLine *));
+    XMLLine **xlines = (XMLLine **)calloc(1,sizeof(XMLLine *));
     int readlines = readintoXMLstruct(testf, xlines);
 
     printf("test results\n\n\n\n\n\n");
@@ -281,12 +274,24 @@ int main()
 
 
     printf("\n\n\nbigreadtest\n\n\n\n\n\n");
-    Ext **nodel = (Ext **)malloc(sizeof(Ext *));
+    Ext **nodel = (Ext **)calloc(1,sizeof(Ext *));
     int madeexts = extListFromXML(xlines, readlines, nodel);
     for (int i = 0; i < madeexts; i++)
     {
         printExt(nodel[i]);
     }
 
+    
 
-}
+    for (int i = 0; i < readlines; i++)
+    {
+       freeXMLLine(xlines[i]);
+    }
+    free(xlines);
+
+    for (int i = 0; i < madeexts; i++)
+    {
+        free(nodel[i]);
+    } 
+    free(nodel);
+} 

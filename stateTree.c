@@ -11,7 +11,7 @@
 // Function to create a new node
 Node *createFileAccess(int index, char *filename, char accessType)
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)calloc(1,sizeof(Node));
     newNode->uniontype = 0;
     newNode->currind = index;
     newNode->node.fac.accessType = accessType;
@@ -28,7 +28,7 @@ Node *createFileAccess(int index, char *filename, char accessType)
 // bad spaghetti proto
 Node *createConditions(int index, struct Node *lchild, struct Node *rchild)
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)calloc(1,sizeof(Node));
     newNode->uniontype = 1;
     newNode->currind = index;
     newNode->node.cond.trueChild = lchild;
@@ -38,7 +38,7 @@ Node *createConditions(int index, struct Node *lchild, struct Node *rchild)
 
 Node *createSent(int isHead, Node *next)
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)calloc(1,sizeof(Node));
     newNode->uniontype = 2;
     newNode->node.sent.isHead = isHead;
     newNode->node.sent.next = next;
@@ -47,7 +47,7 @@ Node *createSent(int isHead, Node *next)
 
 StateTree *init_state_tree()
 {
-    StateTree *sTree = (StateTree *)malloc(sizeof(StateTree));
+    StateTree *sTree = (StateTree *)calloc(1,sizeof(StateTree));
     Node *endtinel = createSent(0, NULL);
     Node *begintinel = createSent(1, endtinel);
     sTree->root = begintinel;
