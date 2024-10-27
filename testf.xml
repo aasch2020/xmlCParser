@@ -1,0 +1,8 @@
+<Block num="0" >
+    <Node type="read" num="1" >
+        <Args count="2" >
+            <Arg fname="example.txt" />
+            <Arg access="12" />
+        </Args>
+    </Node>
+</Block>

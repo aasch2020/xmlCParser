@@ -13,7 +13,7 @@ Node *createFileAccess(int index, char *filename, char accessType)
 {
     Node *newNode = (Node *)malloc(sizeof(Node));
     newNode->uniontype = 0;
-    newNode->node.fac.currind = index;
+    newNode->currind = index;
     newNode->node.fac.accessType = accessType;
     int len = strlen(filename);
     if (len > 4095)
@@ -30,7 +30,7 @@ Node *createConditions(int index, struct Node *lchild, struct Node *rchild)
 {
     Node *newNode = (Node *)malloc(sizeof(Node));
     newNode->uniontype = 1;
-    newNode->node.cond.currind = index;
+    newNode->currind = index;
     newNode->node.cond.trueChild = lchild;
     newNode->node.cond.falseChild = rchild;
     return newNode;
@@ -103,7 +103,7 @@ void fulliter(StateTree *tree)
         iterct++;
         if (iter->uniontype == 0)
         {
-            printf("node index %d, type fileAccess, Access level %c, filename: %s\n", iter->node.fac.currind, iter->node.fac.accessType, iter->node.fac.filename);
+            printf("node index %d, type fileAccess, Access level %c, filename: %s\n", iter->currind, iter->node.fac.accessType, iter->node.fac.filename);
             iter = iter->node.fac.next;
         }
         else if (iter->uniontype == 2)
@@ -181,18 +181,3 @@ int freetree(StateTree *tree)
     return 1;
 }
 
-int main()
-{
-    StateTree *testTree = init_state_tree();
-    fulliter(testTree);
-
-    char *filename = "swagfile.txt";
-
-    insertAfterCurrent(testTree, createFileAccess(0, filename, 'R'));
-    fulliter(testTree);
-
-    //
-    //
-
-    freetree(testTree);
-}

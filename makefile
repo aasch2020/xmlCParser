@@ -1,5 +1,5 @@
-HEADERS = stateTree.h 
-OBJECTS = stateTree.o
+HEADERS = stateTree.h  xmlParse.h
+OBJECTS = stateTree.o  xmlParse.o
 
 default: xmlParse
 
@@ -9,6 +9,3 @@ default: xmlParse
 xmlParse: $(OBJECTS)
 	gcc $(OBJECTS) -o $@
 
-clean:
-	-rm -f $(OBJECTS)
-	-rm -f xmlParse

@@ -10,7 +10,7 @@ typedef struct StateTree
 
 typedef struct Conditions
 {
-    int currind;
+
     struct Node *trueChild;
     struct Node *falseChild;
 } Conditions;
@@ -23,7 +23,7 @@ typedef struct Sentinel
 } Sentinel;
 typedef struct FileAccess
 {
-    int currind;
+
     char filename[4096];
     char accessType;
     struct Node *next;
@@ -37,7 +37,8 @@ typedef union NodeUnion
 typedef struct Node
 {
     int uniontype;
-    NodeUnion node;
+    int currind;
+    union NodeUnion node;
 } Node;
 
 // Function to create a new node
@@ -49,3 +50,9 @@ Node *returnAndStep(StateTree *tree);
 int insertAfter(Node *base, Node *child);
 
 int insertAfterCurrent(StateTree *tree, Node *insert);
+
+int freetree(StateTree *tree);
+
+StateTree *init_state_tree();
+
+void fulliter(StateTree *tree);
