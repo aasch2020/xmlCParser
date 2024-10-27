@@ -36,7 +36,7 @@ typedef union NodeUnion
 } NodeUnion;
 typedef struct Node
 {
-    int uniontype;
+    int uniontype; //0=fac, 2=sent, 1= cond
     int currind;
     union NodeUnion node;
 } Node;
@@ -56,3 +56,8 @@ int freetree(StateTree *tree);
 StateTree *init_state_tree();
 
 void fulliter(StateTree *tree);
+
+void pretty_print_conditions(const Conditions *cond);
+void pretty_print_sentinel(const Sentinel *sent);
+void pretty_print_file_access(const FileAccess *fac);
+void pretty_print_node(const Node *node);

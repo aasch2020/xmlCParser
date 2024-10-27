@@ -181,3 +181,42 @@ int freetree(StateTree *tree)
     return 1;
 }
 
+void pretty_print_conditions(const Conditions *cond) {
+    printf("Conditions:\n");
+    printf("  True Child: %p\n", (void *)cond->trueChild);
+    printf("  False Child: %p\n", (void *)cond->falseChild);
+}
+
+void pretty_print_sentinel(const Sentinel *sent) {
+    printf("Sentinel:\n");
+    printf("  Is Head: %d\n", sent->isHead);
+    printf("  Next: %p\n", (void *)sent->next);
+}
+
+void pretty_print_file_access(const FileAccess *fac) {
+    printf("File Access:\n");
+    printf("  Filename: %s\n", fac->filename);
+    printf("  Access Type: %c\n", fac->accessType);
+    printf("  Next: %p\n", (void *)fac->next);
+}
+
+void pretty_print_node(const Node *node) {
+    printf("Node:\n");
+    printf("  Current Index: %d\n", node->currind);
+    printf("  Union Type: %d\n", node->uniontype);
+
+    switch (node->uniontype) {
+        case 0:
+            pretty_print_file_access(&node->node.fac);
+            break;
+        case 1:
+            pretty_print_conditions(&node->node.cond);
+            break;
+        case 2:
+            pretty_print_sentinel(&node->node.sent);
+            break;
+        default:
+            printf("  Unknown union type\n");
+            break;
+    }
+}

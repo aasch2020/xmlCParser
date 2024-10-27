@@ -1,8 +1,20 @@
 <Block num="0" >
-    <Node type="read" num="1" >
-        <Args count="2" >
-            <Arg fname="example.txt" />
-            <Arg access="12" />
-        </Args>
+    <Node type="RWACD" num="1" >
+        <ListArgs count="2" >
+            <Arg filename="swagmoney.txt" />
+            <Arg access="R" />
+        </ListArgs>
+    </Node>
+    <Node type="RWACD" num="3" >
+        <ListArgs count="2" >
+            <Arg filename="asdf.txt" />
+            <Arg access="R" />
+        </ListArgs>
+    </Node>
+    <Node type="RWACD" num="4" >
+        <ListArgs count="2" >
+            <Arg filename="fdsa.txt" />
+            <Arg access="W" />
+        </ListArgs>
     </Node>
 </Block>
