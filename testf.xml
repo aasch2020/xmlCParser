@@ -1,0 +1,28 @@
+<Block num="0" >
+    <Node type="RWACD" num="1" >
+        <ListArgs count="2" >
+            <Arg filename="swagmoney.txt" />
+            <Arg access="R" />
+        </ListArgs>
+    </Node>
+    <Cond num="2" >
+        <Link to="4" />
+        <Link to="5" />
+    </Cond>
+    <Block num="4" >
+        <Node type="RWACD" num="5" >
+            <ListArgs count="2" >
+                <Arg filename="asdf.txt" />
+                <Arg access="R" />
+            </ListArgs>
+        </Node>
+    </Block>
+    <Block num="5" >
+        <Node type="RWACD" num="6" >
+            <ListArgs count="2" >
+                <Arg filename="fdsa.txt" />
+                <Arg access="W" />
+            </ListArgs>
+        </Node>
+    </Block>
+</Block>

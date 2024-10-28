@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "xml2tree.h": "c"
+    }
+}

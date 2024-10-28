@@ -3,17 +3,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stateTree.h"
+#include "xmlParse.h"
 // #include <linux/string.h>
 #include <string.h>
+
 
 // Define a structure for tree nodes
 
 // Function to create a new node
 Node *createFileAccess(int index, char *filename, char accessType)
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)calloc(1, sizeof(Node));
     newNode->uniontype = 0;
-    newNode->node.fac.currind = index;
+    newNode->currind = index;
     newNode->node.fac.accessType = accessType;
     int len = strlen(filename);
     if (len > 4095)
@@ -28,9 +30,9 @@ Node *createFileAccess(int index, char *filename, char accessType)
 // bad spaghetti proto
 Node *createConditions(int index, struct Node *lchild, struct Node *rchild)
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)calloc(1, sizeof(Node));
     newNode->uniontype = 1;
-    newNode->node.cond.currind = index;
+    newNode->currind = index;
     newNode->node.cond.trueChild = lchild;
     newNode->node.cond.falseChild = rchild;
     return newNode;
@@ -38,7 +40,7 @@ Node *createConditions(int index, struct Node *lchild, struct Node *rchild)
 
 Node *createSent(int isHead, Node *next)
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)calloc(1, sizeof(Node));
     newNode->uniontype = 2;
     newNode->node.sent.isHead = isHead;
     newNode->node.sent.next = next;
@@ -47,7 +49,7 @@ Node *createSent(int isHead, Node *next)
 
 StateTree *init_state_tree()
 {
-    StateTree *sTree = (StateTree *)malloc(sizeof(StateTree));
+    StateTree *sTree = (StateTree *)calloc(1, sizeof(StateTree));
     Node *endtinel = createSent(0, NULL);
     Node *begintinel = createSent(1, endtinel);
     sTree->root = begintinel;
@@ -80,7 +82,6 @@ int insertAfter(Node *base, Node *child)
 
 int insertAfterCurrent(StateTree *tree, Node *insert)
 {
-    Node *base = tree->current;
     if (tree->current == NULL)
     {
         // default to insert after head
@@ -90,21 +91,26 @@ int insertAfterCurrent(StateTree *tree, Node *insert)
     else
     {
         insertAfter(tree->current, insert);
+        return 0;
     }
+
+    return 0;
 }
 
-void fulliter(StateTree *tree)
+void rcriter(Node *iter) // recursive iterator for print
 {
-    Node *iter = tree->root;
     int iterct = 0;
-    while (iter != NULL)
+    if (iter == NULL)
     {
-        printf("iter->uniontype is %d, num in  = %d\n", iter->uniontype, iterct);
+        return;
+    }
+    else
+    {
         iterct++;
         if (iter->uniontype == 0)
         {
-            printf("node index %d, type fileAccess, Access level %c, filename: %s\n", iter->node.fac.currind, iter->node.fac.accessType, iter->node.fac.filename);
-            iter = iter->node.fac.next;
+            printf("node index %d, type fileAccess, Access level %c, filename: %s, next is %p\n", iter->currind, iter->node.fac.accessType, iter->node.fac.filename, iter->node.fac.next);
+            rcriter(iter->node.fac.next);
         }
         else if (iter->uniontype == 2)
         {
@@ -117,16 +123,23 @@ void fulliter(StateTree *tree)
             {
                 printf("head found\n");
             }
-            iter = iter->node.sent.next;
+            rcriter(iter->node.sent.next);
         }
         else
         {
-            printf("this is a conditional, we should never get here\n");
-            break;
+            printf("hit a conditional at index %d children are %p, %p\n\n\n", iter->currind, (void *)iter->node.cond.trueChild, (void *)iter->node.cond.trueChild);
+            rcriter(iter->node.cond.trueChild);
+            rcriter(iter->node.cond.falseChild);
+
+            printf("exiting the conditoin\n\n\n");
         }
     }
 }
-
+void fulliter(StateTree *tree)
+{
+    printf("tail next is (this is bad!!) %p\n", tree->end->node.sent.next);
+    rcriter(tree->root);
+}
 Node *returnAndStep(StateTree *tree)
 {
     Node *retr = tree->current;
@@ -153,46 +166,85 @@ Node *returnAndStep(StateTree *tree)
 
     return retr;
 }
-
-int freetree(StateTree *tree)
+void freeiter(Node *iter, Node *endinel)
 {
-    Node *iter = tree->root;
-    while (iter != tree->end)
+    int iterct = 0;
+    if (iter == endinel)
     {
-        Node *todel = iter;
+        return;
+    }
+    else
+    {
+        iterct++;
         if (iter->uniontype == 0)
         {
-            iter = iter->node.fac.next;
-            free(todel);
+            freeiter(iter->node.fac.next, endinel);
+            free(iter);
         }
         else if (iter->uniontype == 2)
         {
-
-            iter = iter->node.sent.next;
-            free(todel);
+            freeiter(iter->node.sent.next, endinel);
+            free(iter);
         }
         else
         {
+            freeiter(iter->node.cond.trueChild, endinel);
+            freeiter(iter->node.cond.falseChild, endinel);
 
-            return 0;
+            free(iter);
         }
     }
-    free(iter);
+}
+
+int freetree(StateTree *tree)
+{
+    freeiter(tree->root, tree->end);
+    free(tree->end);
+    free(tree);
     return 1;
 }
 
-int main()
+void pretty_print_conditions(const Conditions *cond)
 {
-    StateTree *testTree = init_state_tree();
-    fulliter(testTree);
+    printf("Conditions:\n");
+    printf("  True Child: %p\n", (void *)cond->trueChild);
+    printf("  False Child: %p\n", (void *)cond->falseChild);
+}
 
-    char *filename = "swagfile.txt";
+void pretty_print_sentinel(const Sentinel *sent)
+{
+    printf("Sentinel:\n");
+    printf("  Is Head: %d\n", sent->isHead);
+    printf("  Next: %p\n", (void *)sent->next);
+}
 
-    insertAfterCurrent(testTree, createFileAccess(0, filename, 'R'));
-    fulliter(testTree);
+void pretty_print_file_access(const FileAccess *fac)
+{
+    printf("File Access:\n");
+    printf("  Filename: %s\n", fac->filename);
+    printf("  Access Type: %c\n", fac->accessType);
+    printf("  Next: %p\n", (void *)fac->next);
+}
 
-    //
-    //
+void pretty_print_node(const Node *node)
+{
+    printf("Node:\n");
+    printf("  Current Index: %d\n", node->currind);
+    printf("  Union Type: %d\n", node->uniontype);
 
-    freetree(testTree);
+    switch (node->uniontype)
+    {
+    case 0:
+        pretty_print_file_access(&node->node.fac);
+        break;
+    case 1:
+        pretty_print_conditions(&node->node.cond);
+        break;
+    case 2:
+        pretty_print_sentinel(&node->node.sent);
+        break;
+    default:
+        printf("  Unknown union type\n");
+        break;
+    }
 }

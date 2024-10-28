@@ -1,19 +1,20 @@
 #define MAX_PATH = 4096
 
-typedef struct StateTree
+typedef struct StateTree  // Tree struct
 {
     struct Node *root;
     struct Node *current;
     struct Node *end;
 } StateTree;
-// File for state "Tree", due to no conditional support yet is essentially a linked list
 
 typedef struct Conditions
 {
-    int currind;
+
     struct Node *trueChild;
     struct Node *falseChild;
 } Conditions;
+
+ 
 
 // IMPORTANT pending support of
 typedef struct Sentinel
@@ -23,7 +24,7 @@ typedef struct Sentinel
 } Sentinel;
 typedef struct FileAccess
 {
-    int currind;
+
     char filename[4096];
     char accessType;
     struct Node *next;
@@ -36,16 +37,30 @@ typedef union NodeUnion
 } NodeUnion;
 typedef struct Node
 {
-    int uniontype;
-    NodeUnion node;
+    int uniontype; // 0=fac, 2=sent, 1= cond
+    int currind;
+    union NodeUnion node;
 } Node;
 
 // Function to create a new node
 
-Node *createFileAccess(int index, char *filename, char accessType);
+Node *createFileAccess(int index, char *filename, char accessType); // create a file access node
 
-Node *returnAndStep(StateTree *tree);
+Node *returnAndStep(StateTree *tree); // for the state machine consumer, 
 
-int insertAfter(Node *base, Node *child);
+int insertAfter(Node *base, Node *child); // insert after a noe
 
-int insertAfterCurrent(StateTree *tree, Node *insert);
+int insertAfterCurrent(StateTree *tree, Node *insert); // insert after the current node
+
+int freetree(StateTree *tree); // free a tree
+
+StateTree *init_state_tree(); // initialize a tree with sentinels
+
+void fulliter(StateTree *tree); // iterate the entire tree
+
+//prints
+
+void pretty_print_conditions(const Conditions *cond);
+void pretty_print_sentinel(const Sentinel *sent);
+void pretty_print_file_access(const FileAccess *fac);
+void pretty_print_node(const Node *node);
