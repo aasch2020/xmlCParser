@@ -1,0 +1,7 @@
+# thing
+config SECURITY_MYSEC
+	bool "mysec support"
+	depends on SECURITY
+	default n
+	help
+	  puts in mysec
